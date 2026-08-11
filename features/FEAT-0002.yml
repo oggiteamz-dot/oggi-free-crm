@@ -1,0 +1,28 @@
+id: FEAT-0002
+title: Find any contact in one list
+status: planned
+role: pro
+path: /contacts
+
+steps:
+  - Open Contacts
+  - Type part of a name or a phone number in the search box
+expect: Only the matching contacts stay on screen, and it filters as you type
+
+persists:
+  - contacts
+
+notifies:
+  # nobody needs telling
+
+admin_editable:
+  - contacts.search_placeholder
+  - contacts.empty_message
+
+unhappy_paths:
+  - No contacts yet -> a message explaining what to do, not a blank screen
+  - Search matches nothing -> says so, does not look broken
+  - 500 contacts -> still scrolls smoothly on a phone
+
+verified_by: ""
+last_proven_at: ""

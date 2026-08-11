@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Product</title>
+
+<!--
+  ONE SMALL FILE PER FEATURE — and NO build step.
+
+  Browsers run ES modules natively, so `type="module"` plus `import` is all that
+  is needed. No npm, no bundler, no server. You still deploy by dragging the
+  folder. But the product is 20 small files instead of one enormous one, which is
+  what stops an edit to one feature reaching another.
+
+  Why that matters here specifically: the previous single-file app reached 396KB
+  and 500 functions, the editor silently truncated it on save five times, and
+  once it stopped fitting in view every edit became a rewrite-from-memory — which
+  is exactly how features vanished.
+-->
+
+<link rel="stylesheet" href="./core/style.css">
+<script src="../scripts/error-sink.js"></script>
+</head>
+<body>
+  <main id="app" data-screen="screen-loading">Loading…</main>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

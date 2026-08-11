@@ -1,0 +1,27 @@
+id: FEAT-0010
+title: Be useful within a minute of signing up
+status: planned
+role: pro
+path: /
+
+steps:
+  - Sign up as a brand new user
+  - Look at the first screen
+expect: A working pipeline already exists with sensible stages, and one obvious next step
+
+persists:
+  - settings
+
+notifies:
+  # nobody needs telling
+
+admin_editable:
+  - onboarding.welcome
+  - onboarding.first_step
+
+unhappy_paths:
+  - Skip everything -> still lands on a usable app
+  - Come back the next day -> setup is not asked for again
+
+verified_by: ""
+last_proven_at: ""

@@ -1,0 +1,148 @@
+# =============================================================================
+# .github/workflows/gates.yml — the checks run again, where they cannot be edited
+# =============================================================================
+#
+# Copy this file to  .github/workflows/gates.yml  in the product's repository.
+#
+# WHY BOTH LOCAL AND CI
+# ---------------------
+# The local gate only runs when Claude is running. This one runs on every push,
+# regardless of who or what made the change — which is the only version that
+# survives someone (or something) deciding to skip it.
+#
+# THE JOB THAT MATTERS MOST IS `database`.
+# It replays every migration from ZERO against an empty database. That is the
+# exact check that would have caught the incident where following the runbook
+# produced a 500 error, because seven required columns lived in a SQL file that
+# appeared in no deploy step anywhere.
+#
+# THE SECOND MOST IMPORTANT IS `gate-tampering`.
+# The single highest-probability way this system dies is not skipping the gate —
+# it is quietly weakening it. One `|| true`, one new ignore-file entry, one more
+# exclusion in a regex. It looks like maintenance. It is capitulation. So a
+# change to any gate script travelling in the same commit as a source change is
+# flagged for a human to look at.
+# =============================================================================
+
+name: OGGI Build Gates
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  # ---------------------------------------------------------------------------
+  gate:
+    name: The gate (green or red)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0          # full history — surface_diff needs the previous state
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Regenerate the feature ledger from the code
+        run: python3 scripts/inventory.py
+
+      - name: Fail if the committed ledger was stale or hand-written
+        # A hand-written "generated" file will not match a fresh regeneration.
+        # This is what makes "generated, never typed" enforceable.
+        run: git diff --exit-code docs/FEATURE-LEDGER.generated.md docs/feature-inventory.json
+
+      - name: Run every mechanical check
+        run: python3 scripts/check.py
+
+      - name: Did this change silently remove anything?
+        run: python3 scripts/surface_diff.py
+
+  # ---------------------------------------------------------------------------
+  database:
+    name: Replay every migration from zero
+    runs-on: ubuntu-latest
+    if: hashFiles('supabase/migrations/*.sql') != ''
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready --health-interval 5s
+          --health-timeout 5s --health-retries 10
+        ports: ["5432:5432"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Apply every migration in order, against an empty database
+        # If a required column lives in a file that is not in the migration
+        # sequence, this fails HERE — not in production, three weeks later,
+        # as a 500 error on a customer's screen.
+        run: |
+          export PGPASSWORD=postgres
+          for f in $(ls supabase/migrations/*.sql | sort); do
+            echo "── applying $f"
+            psql -h localhost -U postgres -d postgres -v ON_ERROR_STOP=1 -f "$f"
+          done
+          echo "All migrations replay cleanly from an empty database."
+
+      - name: Security queries — no permissive policies, no unprotected tables
+        run: |
+          export PGPASSWORD=postgres
+          psql -h localhost -U postgres -d postgres -f sql/03_diagnostics.sql | tee /tmp/audit.txt
+          if grep -qE 'PERMISSIVE POLICY|RLS DISABLED' /tmp/audit.txt; then
+            echo "::error::A table is readable or writable by anyone. See the output above."
+            exit 1
+          fi
+
+  # ---------------------------------------------------------------------------
+  gate-tampering:
+    name: Was the gate itself weakened?
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+
+      - name: Flag gate changes shipped alongside code changes
+        run: |
+          BASE="${{ github.event.pull_request.base.sha }}"
+          CHANGED=$(git diff --name-only "$BASE" HEAD)
+          GATE=$(echo "$CHANGED" | grep -E '^(scripts/|\.github/workflows/|oggi-build\.config\.json|knip\.json|\.eslintrc)' || true)
+          SRC=$(echo "$CHANGED"  | grep -vE '^(scripts/|\.github/workflows/|oggi-build\.config\.json|docs/)' || true)
+          if [ -n "$GATE" ] && [ -n "$SRC" ]; then
+            echo "::error::This change edits BOTH the checks and the code they check."
+            echo "$GATE" | sed 's/^/  gate file: /'
+            echo ""
+            echo "That is the pattern that looks like maintenance and is actually the gate"
+            echo "being loosened so a failing change can pass. Split it into two commits:"
+            echo "one that changes the checks, one that changes the code."
+            echo ""
+            echo "If the gate change is genuinely correct, say so in WAIVERS.md and"
+            echo "re-push — a gate change should be a decision on the record."
+            # This FAILS rather than warns. A warning exits 0, and in an automated
+            # pipeline an exit-0 warning is invisible: the agent sees green and stops.
+            exit 1
+          fi
+
+  # ---------------------------------------------------------------------------
+  live:
+    name: Prove it on the live URL
+    needs: [gate]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - run: npm i -D playwright && npx playwright install --with-deps chromium
+      - name: Wait for the deploy, then test the real product on a second device
+        run: node scripts/verify_live.mjs --sha ${{ github.sha }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: live-verification
+          path: evidence/

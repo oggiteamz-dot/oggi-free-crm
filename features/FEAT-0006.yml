@@ -1,0 +1,26 @@
+id: FEAT-0006
+title: See everything that happened with a contact
+status: planned
+role: pro
+path: /contacts/:id
+
+steps:
+  - Open any contact
+  - Look at the timeline
+expect: Every call, message and note in order, newest first, with dates
+
+persists:
+  - activities
+
+notifies:
+  # nobody needs telling
+
+admin_editable:
+  - timeline.empty_message
+
+unhappy_paths:
+  - Brand new contact -> explains the timeline will fill up, not blank
+  - A note with a script tag typed in -> shown as text, never runs
+
+verified_by: ""
+last_proven_at: ""

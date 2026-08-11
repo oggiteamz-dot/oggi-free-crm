@@ -1,0 +1,30 @@
+id: FEAT-0009
+title: Give a teammate their own login with the right access
+status: planned
+role: owner
+path: /settings/team
+
+steps:
+  - Open Team
+  - Invite someone as Rep
+  - Sign in as them on another device
+expect: They see only their own contacts and cannot open Settings
+
+persists:
+  - users
+  - roles
+
+notifies:
+  - the invited person, by email or WhatsApp
+
+admin_editable:
+  - team.invite_button
+  - team.role_descriptions
+
+unhappy_paths:
+  - Invite an email already invited -> told, not duplicated
+  - A Rep types the settings address directly -> refused with an explanation
+  - The last owner tries to remove themselves -> blocked
+
+verified_by: ""
+last_proven_at: ""

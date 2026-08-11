@@ -1,0 +1,28 @@
+id: FEAT-0008
+title: Know what is due today
+status: planned
+role: pro
+path: /tasks
+
+steps:
+  - Add a task on a contact with today's date
+  - Open Today
+expect: The task is listed under Today, and anything late is clearly marked overdue
+
+persists:
+  - tasks
+
+notifies:
+  - the pro, when a task becomes overdue
+
+admin_editable:
+  - tasks.today_heading
+  - tasks.none_due_message
+
+unhappy_paths:
+  - Nothing due -> says you are clear, not an empty screen
+  - A task from last week -> shown as overdue, not hidden
+  - Marked done -> stays done after a reload and on another device
+
+verified_by: ""
+last_proven_at: ""

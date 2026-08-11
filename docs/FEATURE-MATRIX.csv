@@ -1,0 +1,12 @@
+# FEATURE MATRIX — the agreed scope, and the final checklist. Same file, both ends.
+# verdict: match = build it · beat = build it better than they do · skip = deliberately not
+# EVERY match/beat row must end up with a feat_id, or the build goes red.
+# EVERY skip row must have a why. 'We didn't get to it' is not a why.
+id,feature,area,rivals_have,verdict,why,source,feat_id
+FM-001,Add a contact,contacts,All 14,match,,research,FEAT-0001
+FM-002,Find any contact in one list,contacts,All 14,match,,research,FEAT-0002
+FM-003,"Export everything to CSV, always free",data,Nobody unconditionally,beat,,complaint,FEAT-0003
+FM-004,Duplicate detection when adding a contact,contacts,Dubsado;Zoho;HubSpot,match,,research,
+FM-005,Bulk delete or merge contacts,contacts,Zoho;Pipedrive;Attio,match,,research,
+FM-006,Proposals and invoicing,billing,Dubsado;HoneyBook;Bonsai,skip,v2 — hold until the Lead Pool schema is stable,research,
+FM-007,Recurring tasks,tasks,17hats;Zoho,skip,,research,

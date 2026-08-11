@@ -1,0 +1,29 @@
+id: FEAT-0001
+title: Add a contact
+status: planned
+role: pro
+path: /contacts/new
+
+steps:
+  - Tap Add contact
+  - Type a name, phone and WhatsApp number
+  - Tap Save
+expect: The contact appears at the top of your contacts list
+
+persists:
+  - contacts
+
+notifies:
+  # nobody needs telling
+
+admin_editable:
+  - contacts.add_button
+  - contacts.saved_message
+
+unhappy_paths:
+  - Save with everything empty -> a visible message, never silent
+  - Same phone number twice -> warned it already exists, not a duplicate
+  - Tapped Save twice fast -> one contact, not two
+
+verified_by: ""
+last_proven_at: ""

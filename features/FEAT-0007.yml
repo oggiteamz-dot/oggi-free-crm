@@ -1,0 +1,31 @@
+id: FEAT-0007
+title: Send and receive WhatsApp from the contact record
+status: planned
+role: pro
+path: /contacts/:id
+
+steps:
+  - Open a contact
+  - Type a message in the WhatsApp box
+  - Send
+  - Reply from the other phone
+expect: Both your message and their reply appear on the timeline, on both devices
+
+persists:
+  - activities
+  - messages
+
+notifies:
+  - the pro, when a customer replies
+
+admin_editable:
+  - whatsapp.send_button
+  - whatsapp.failed_message
+
+unhappy_paths:
+  - Send with no message typed -> nothing sent, told why
+  - Number is not on WhatsApp -> a clear message, not silence
+  - Sent while offline -> queued and clearly marked, never lost
+
+verified_by: ""
+last_proven_at: ""

@@ -1,0 +1,29 @@
+id: FEAT-0005
+title: Move a deal along the pipeline
+status: planned
+role: pro
+path: /pipeline
+
+steps:
+  - Open Pipeline
+  - Drag a deal from New to Contacted
+  - Fully close and reopen the app
+expect: The deal is still in Contacted
+
+persists:
+  - deals
+
+notifies:
+  # nobody needs telling
+
+admin_editable:
+  - pipeline.stage_labels
+  - pipeline.empty_message
+
+unhappy_paths:
+  - Drag and drop it back -> works both directions
+  - Dropped between columns -> lands somewhere sensible, never disappears
+  - Two deals dragged quickly -> both land correctly
+
+verified_by: ""
+last_proven_at: ""

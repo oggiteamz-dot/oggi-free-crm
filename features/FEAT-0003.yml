@@ -1,0 +1,28 @@
+id: FEAT-0003
+title: Export everything to CSV, always free
+status: planned
+role: pro
+path: /contacts
+
+steps:
+  - Open Contacts
+  - Tap Export
+  - Open the downloaded file
+expect: A CSV containing every contact, every field, with nothing paywalled or missing
+
+persists:
+  # nothing is saved by this one
+
+notifies:
+  # nobody needs telling
+
+admin_editable:
+  - contacts.export_button
+
+unhappy_paths:
+  - No contacts -> exports a file with just headers, does not crash
+  - Names with commas and apostrophes -> columns still line up
+  - Arabic names -> readable, not mangled
+
+verified_by: ""
+last_proven_at: ""

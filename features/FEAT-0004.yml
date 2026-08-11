@@ -1,0 +1,30 @@
+id: FEAT-0004
+title: Import contacts from a CSV
+status: planned
+role: pro
+path: /contacts/import
+
+steps:
+  - Tap Import
+  - Choose a CSV file
+  - Match the columns
+  - Tap Import
+expect: It says how many were added and how many were skipped, and they appear in the list
+
+persists:
+  - contacts
+
+notifies:
+  # nobody needs telling
+
+admin_editable:
+  - import.heading
+  - import.done_message
+
+unhappy_paths:
+  - Wrong file type -> told clearly which types work
+  - A row missing a name -> that row skipped and reported, the rest still import
+  - Someone already in the list -> skipped, not duplicated
+
+verified_by: ""
+last_proven_at: ""

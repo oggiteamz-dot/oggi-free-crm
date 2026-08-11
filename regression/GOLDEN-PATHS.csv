@@ -1,0 +1,14 @@
+# The flows that must NEVER break. Re-run ALL of them after EVERY change,
+# including changes Claude is confident are unrelated — "unrelated" is the word
+# that appears immediately before every regression.
+# Cap the whole set at 45 minutes. If it takes longer, it stops being run.
+# Order: money first, then access, then the main action, then error states.
+# A bug that escaped to production once gets added here permanently.
+id,order,flow,why_it_must_never_break,how_to_test,last_run,result
+GP-01,1,Customer pays,No revenue if broken. Also where placeholder links hide.,"Open /pricing, click Subscribe, confirm a REAL payment page opens",,
+GP-02,2,Customer signs in,Nobody can use anything.,"Sign in on a private window with a real account",,
+GP-03,3,Owner signs in,You lose control of your own product.,"Sign in as owner, confirm the admin console loads",,
+GP-04,4,The main action,The product's whole reason to exist.,"Do the thing the product is for, end to end",,
+GP-05,5,Data survives a second device,The failure that shipped broken to customers.,"Do the action on phone A, open on phone B, confirm it is there",,
+GP-06,6,Somebody gets notified,A silent failure nobody discovers for weeks.,"Trigger it, confirm the message actually arrives",,
+GP-07,7,Error shows a message,A dead screen with no explanation.,"Submit an empty form, confirm a visible message appears",,

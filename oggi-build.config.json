@@ -1,0 +1,15 @@
+{
+ "_comment": "New products start modular and enforced. Do not relax these.",
+ "live_url": "https://oggi-free-crm.oggi-teamz.workers.dev",
+ "source_dirs": [
+  "src",
+  "supabase/functions"
+ ],
+ "persistence_allowlist": "src/core/store.js",
+ "persistence_symbol": "DATA_KEYS",
+ "state_object": "STATE",
+ "max_file_lines": 300,
+ "filesize_enforce": true,
+ "extra_placeholders": [],
+ "has_database": true
+}

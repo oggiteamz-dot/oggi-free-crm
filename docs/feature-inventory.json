@@ -1,0 +1,136 @@
+{
+ "edge_functions": [],
+ "features": [
+  {
+   "file": "features/FEAT-0001.yml",
+   "id": "FEAT-0001",
+   "line": 1,
+   "title": "Add a contact"
+  },
+  {
+   "file": "features/FEAT-0002.yml",
+   "id": "FEAT-0002",
+   "line": 1,
+   "title": "Find any contact in one list"
+  },
+  {
+   "file": "features/FEAT-0003.yml",
+   "id": "FEAT-0003",
+   "line": 1,
+   "title": "Export everything to CSV, always free"
+  },
+  {
+   "file": "features/FEAT-0004.yml",
+   "id": "FEAT-0004",
+   "line": 1,
+   "title": "Import contacts from a CSV"
+  },
+  {
+   "file": "features/FEAT-0005.yml",
+   "id": "FEAT-0005",
+   "line": 1,
+   "title": "Move a deal along the pipeline"
+  },
+  {
+   "file": "features/FEAT-0006.yml",
+   "id": "FEAT-0006",
+   "line": 1,
+   "title": "See everything that happened with a contact"
+  },
+  {
+   "file": "features/FEAT-0007.yml",
+   "id": "FEAT-0007",
+   "line": 1,
+   "title": "Send and receive WhatsApp from the contact record"
+  },
+  {
+   "file": "features/FEAT-0008.yml",
+   "id": "FEAT-0008",
+   "line": 1,
+   "title": "Know what is due today"
+  },
+  {
+   "file": "features/FEAT-0009.yml",
+   "id": "FEAT-0009",
+   "line": 1,
+   "title": "Give a teammate their own login with the right access"
+  },
+  {
+   "file": "features/FEAT-0010.yml",
+   "id": "FEAT-0010",
+   "line": 1,
+   "title": "Be useful within a minute of signing up"
+  }
+ ],
+ "files": [
+  {
+   "file": "src/app.js",
+   "lines": 24
+  },
+  {
+   "file": "src/core/router.js",
+   "lines": 31
+  },
+  {
+   "file": "src/core/store.js",
+   "lines": 61
+  },
+  {
+   "file": "src/core/text.js",
+   "lines": 30
+  },
+  {
+   "file": "src/index.html",
+   "lines": 30
+  }
+ ],
+ "functions": [
+  {
+   "file": "src/core/text.js",
+   "line": 25,
+   "name": "esc"
+  },
+  {
+   "file": "src/core/router.js",
+   "line": 8,
+   "name": "go"
+  },
+  {
+   "file": "src/core/store.js",
+   "line": 43,
+   "name": "hydrate"
+  },
+  {
+   "file": "src/core/text.js",
+   "line": 9,
+   "name": "loadText"
+  },
+  {
+   "file": "src/core/router.js",
+   "line": 13,
+   "name": "paint"
+  },
+  {
+   "file": "src/core/store.js",
+   "line": 23,
+   "name": "persist"
+  },
+  {
+   "file": "src/core/router.js",
+   "line": 7,
+   "name": "screen"
+  },
+  {
+   "file": "src/core/text.js",
+   "line": 18,
+   "name": "t"
+  }
+ ],
+ "generated": "2026-08-10",
+ "policies": [],
+ "routes": [],
+ "screens": [
+  "screen-loading"
+ ],
+ "tables": []
+}

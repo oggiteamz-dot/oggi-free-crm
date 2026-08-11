@@ -1,0 +1,31 @@
+{
+  "_comment": "The journeys verify_live.mjs runs against the LIVE product. Order them by damage: money first, then sign-in, then the main action. Five good journeys beat fifty shallow ones.",
+  "journeys": [
+    {
+      "id": "J1",
+      "name": "Buyer places an order",
+      "path": "/catalog",
+      "login": {
+        "userSelector": "#login-user",
+        "passSelector": "#login-pass",
+        "submitSelector": "#login-submit",
+        "user": "verify-bot@example.test",
+        "pass": "SET-VIA-ENV"
+      },
+      "steps": [
+        { "click": "[data-product='1']" },
+        { "fill": { "selector": "[data-qty='blue']", "value": "20" } },
+        { "click": "#place-order" },
+        { "wait": 1500 }
+      ],
+      "expect": "Blue x20",
+      "afterReloadPath": "/orders"
+    },
+    {
+      "id": "J2",
+      "name": "Pricing page has a real payment link",
+      "path": "/pricing",
+      "expect": "Subscribe"
+    }
+  ]
+}
