@@ -1,0 +1,38 @@
+id: FEAT-0011
+title: Warn when a contact already exists
+status: planned
+role: pro
+path: /contacts/new
+
+# WARN, NEVER BLOCK. Zoho hard-blocks on a unique field and its own community
+# shows the result: users asking whether to leave the email blank to get past
+# the gate. Teaching people to strip identifiers is worse than the duplicate.
+# The load-bearing part is phone normalisation, not the matching.
+
+steps:
+  - Add a contact with a phone number that already exists
+  - Read the warning
+  - Choose "Open it instead"
+expect: The warning names the existing contact, and Open it instead takes you there. Save anyway still works.
+
+persists:
+  - contacts
+
+notifies:
+  # nobody needs telling
+
+admin_editable:
+  - contacts.duplicate_warning
+  - contacts.open_existing_label
+  - contacts.save_anyway_label
+
+unhappy_paths:
+  - Two real people share one shop landline -> Save anyway works, nothing is blocked
+  - Same number typed as 03 123 456 / +961 3 123 456 / 00961 3 123 456 -> all three warn
+  - 70 123 456 vs 03 123 456 -> recognised as different numbers, no false warning
+  - Same email in different case or with spaces -> still warns
+  - No phone and no email entered -> saves with no warning, does not demand one
+  - Marked as duplicate of another -> hidden from lists, and it can be un-marked
+
+verified_by: ""
+last_proven_at: ""

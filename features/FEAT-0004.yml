@@ -9,10 +9,11 @@ steps:
   - Choose a CSV file
   - Match the columns
   - Tap Import
-expect: It says how many were added and how many were skipped, and they appear in the list
+expect: It says how many were added, how many were skipped as already existing, and they appear in the list
 
 persists:
   - contacts
+  - operations
 
 notifies:
   # nobody needs telling
@@ -20,11 +21,15 @@ notifies:
 admin_editable:
   - import.heading
   - import.done_message
+  - import.skip_or_update_labels
 
 unhappy_paths:
   - Wrong file type -> told clearly which types work
   - A row missing a name -> that row skipped and reported, the rest still import
-  - Someone already in the list -> skipped, not duplicated
+  - Someone already in the list -> skipped by default, never silently duplicated
+  - The same phone written as 03 123 456 and +961 3 123 456 -> recognised as the same person
+  - Import the identical file twice -> the contact count does not double
+  - Changed your mind -> the whole import can be undone as one operation (FEAT-0012)
 
 verified_by: ""
 last_proven_at: ""

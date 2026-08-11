@@ -38,3 +38,16 @@ Thumbs.db
 !.env.example
 *.pem
 *.key
+
+# --- toolkit installer leftovers: never commit these ------------------------
+# These are artefacts of installing/updating the toolkit on a machine where
+# files cannot be deleted through the file bridge. They are not part of the
+# product and they made it into the first public commit, which is how this
+# block came to exist.
+_to_delete/
+_update.tar.gz
+*.tar.gz
+
+# --- python bytecode --------------------------------------------------------
+__pycache__/
+*.py[cod]

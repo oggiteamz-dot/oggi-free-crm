@@ -1,0 +1,47 @@
+id: FEAT-0014
+title: Send and receive WhatsApp inside the contact record
+status: blocked
+role: pro
+path: /contacts/:id
+
+# THE DIFFERENTIATOR. Blocked until one open question is answered:
+# whether Meta billing accepts a Lebanese-issued card. Test with one real
+# client before starting. See docs/PRD.md 11.6.
+#
+# Architecture is fixed and not open for redecision: Meta Tech Provider +
+# Embedded Signup + Coexistence. Each business connects its OWN WhatsApp
+# Business Account and Meta bills them directly. Never a shared OGGI number.
+# Never an unofficial library — the ban lands on the client's business number.
+
+steps:
+  - Connect your own WhatsApp Business account once, from Settings
+  - Open a contact who has messaged you
+  - Type a reply in the WhatsApp box and send
+  - Reply from the other phone
+expect: Both messages appear on the timeline within seconds, on both devices
+
+persists:
+  - messages
+  - activities
+
+notifies:
+  - the assigned pro, when a customer replies
+
+admin_editable:
+  - whatsapp.send_button
+  - whatsapp.failed_message
+  - whatsapp.window_closed_message
+  - whatsapp.template_picker_heading
+
+unhappy_paths:
+  - The 24-hour window has closed -> the box switches to templates and says why, before you type
+  - A template is picked -> its cost is shown before sending, not after
+  - Send with nothing typed -> nothing sent, told why
+  - The number is not on WhatsApp -> a clear message, never silence
+  - Sent while offline -> queued and clearly marked, never lost
+  - Meta rejects the message -> the real reason is shown, not a generic failure
+  - Display name not yet approved (error 131037) -> explained in plain language with what to do
+  - Messaging a Syrian number -> blocked by Meta, and the app says so rather than failing silently
+
+verified_by: ""
+last_proven_at: ""

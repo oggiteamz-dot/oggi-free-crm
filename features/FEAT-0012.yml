@@ -1,0 +1,39 @@
+id: FEAT-0012
+title: Undo a bulk delete or an entire import
+status: planned
+role: pro
+path: /contacts
+
+# A free product has no support team to restore from backups, so the undo has
+# to live in the software. Five CRMs independently built import rollback —
+# Salesforce publishes a document literally titled "Using Mass Delete to Undo
+# Imports". Undo the OPERATION, not the records.
+
+steps:
+  - Select several contacts
+  - Delete them, confirming the count
+  - Tap Undo on the message that appears
+expect: All of them come back exactly as they were, including their timeline and tasks
+
+persists:
+  - contacts
+  - operations
+
+notifies:
+  - the Owner, by email, when more than 25 records are deleted at once
+
+admin_editable:
+  - bulk.delete_confirm
+  - bulk.undo_label
+  - bulk.recycle_bin_heading
+
+unhappy_paths:
+  - Deleted 40 contacts -> must type the number before it proceeds
+  - Closed the app before tapping Undo -> still recoverable from the bin for 30 days
+  - Undo an import -> only the rows it created are removed, rows it updated are left alone, and it says so
+  - A deleted contact had deals and tasks -> those come back too, not orphaned
+  - On a phone -> bulk delete needs Select mode first, a long-press cannot trigger it
+  - After 30 days -> gone for good, and the bin says when each item expires
+
+verified_by: ""
+last_proven_at: ""

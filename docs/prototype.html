@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OGGI Free CRM — clickable prototype</title>
+<style>
+  :root{
+    --ink:#0d1117; --ink-2:#3d444d; --ink-3:#7d8590;
+    --line:#e4e7eb; --bg:#f4f5f7; --card:#ffffff;
+    --brand:#0f7b6c; --brand-soft:#e6f4f1;
+    --warn:#b45309; --warn-soft:#fef3c7;
+    --danger:#b42318; --danger-soft:#fee4e2;
+    --wa:#25d366;
+    --r:14px;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;
+  }
+  .wrap{max-width:1180px; margin:0 auto; padding:28px 20px 60px; display:grid; grid-template-columns:1fr 400px; gap:36px}
+  @media(max-width:960px){ .wrap{grid-template-columns:1fr; padding:20px 14px 40px} }
+
+  header h1{font-size:26px; margin:0 0 6px; letter-spacing:-.02em}
+  header p{margin:0 0 4px; color:var(--ink-2); max-width:62ch}
+  .meta{color:var(--ink-3); font-size:13px; margin-top:10px}
+  .note{background:#fff; border:1px solid var(--line); border-radius:var(--r); padding:16px 18px; margin:22px 0}
+  .note h3{margin:0 0 8px; font-size:14px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-3)}
+  .note ul{margin:0; padding-left:18px; color:var(--ink-2)}
+  .note li{margin:5px 0}
+  .note li b{color:var(--ink)}
+
+  /* screen index */
+  .index{display:flex; flex-wrap:wrap; gap:7px; margin:18px 0 0}
+  .index button{
+    font:inherit; font-size:13px; padding:6px 11px; border-radius:99px; cursor:pointer;
+    border:1px solid var(--line); background:#fff; color:var(--ink-2);
+  }
+  .index button:hover{border-color:var(--brand); color:var(--brand)}
+  .index button.on{background:var(--ink); border-color:var(--ink); color:#fff}
+
+  /* phone */
+  .stage{position:sticky; top:24px; justify-self:center}
+  .phone{
+    width:380px; height:770px; background:#0d1117; border-radius:44px; padding:12px;
+    box-shadow:0 30px 60px -20px rgba(13,17,23,.45), 0 0 0 1px rgba(13,17,23,.06);
+  }
+  .glass{width:100%; height:100%; background:var(--card); border-radius:33px; overflow:hidden; position:relative; display:flex; flex-direction:column}
+  .status{height:26px; display:flex; align-items:center; justify-content:space-between; padding:0 20px; font-size:11px; color:var(--ink-3); flex:none}
+
+  .screen{display:none; flex:1; min-height:0; flex-direction:column}
+  .screen.on{display:flex}
+
+  .top{padding:12px 18px 10px; border-bottom:1px solid var(--line); flex:none; display:flex; align-items:center; gap:10px}
+  .top h2{margin:0; font-size:18px; letter-spacing:-.01em; flex:1}
+  .back{border:0; background:none; font:inherit; font-size:20px; color:var(--ink-3); cursor:pointer; padding:0 4px 0 0; line-height:1}
+  .body{flex:1; overflow:auto; padding:14px 18px 18px}
+  .body::-webkit-scrollbar{width:0}
+
+  .tabs{flex:none; display:flex; border-top:1px solid var(--line); background:#fff}
+  .tabs button{flex:1; border:0; background:none; padding:9px 0 12px; font:inherit; font-size:10.5px; color:var(--ink-3); cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:3px}
+  .tabs button .ic{font-size:17px; line-height:1}
+  .tabs button.on{color:var(--brand); font-weight:600}
+
+  /* bits */
+  .stat{display:flex; align-items:center; gap:13px; padding:13px 15px; border:1px solid var(--line); border-radius:12px; margin-bottom:9px; cursor:pointer; background:#fff}
+  .stat:hover{border-color:var(--brand)}
+  .stat .n{font-size:24px; font-weight:650; min-width:34px; letter-spacing:-.02em}
+  .stat .t{font-size:13.5px; color:var(--ink-2); line-height:1.35}
+  .stat .t b{display:block; color:var(--ink); font-weight:600; font-size:14.5px}
+  .stat.q .n{color:var(--warn)} .stat.w .n{color:var(--wa)} .stat.d .n{color:var(--brand)}
+
+  .row{display:flex; align-items:center; gap:11px; padding:11px 2px; border-bottom:1px solid var(--line); cursor:pointer}
+  .row:last-child{border-bottom:0}
+  .av{width:36px; height:36px; border-radius:50%; background:var(--brand-soft); color:var(--brand); display:grid; place-items:center; font-weight:650; font-size:13px; flex:none}
+  .row .m{flex:1; min-width:0}
+  .row .m b{display:block; font-weight:600; font-size:14.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .row .m span{font-size:12.5px; color:var(--ink-3)}
+  .row .r{font-size:11.5px; color:var(--ink-3); text-align:right; flex:none}
+
+  .search{width:100%; padding:9px 12px; border:1px solid var(--line); border-radius:10px; font:inherit; font-size:14px; margin-bottom:6px; background:var(--bg)}
+  .lbl{font-size:11px; text-transform:uppercase; letter-spacing:.07em; color:var(--ink-3); margin:16px 0 7px; font-weight:600}
+  .fld{width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:10px; font:inherit; font-size:14px; margin-bottom:9px}
+  .btn{width:100%; padding:11px; border:0; border-radius:10px; background:var(--brand); color:#fff; font:inherit; font-weight:600; font-size:14.5px; cursor:pointer; margin-top:4px}
+  .btn.ghost{background:#fff; color:var(--ink-2); border:1px solid var(--line)}
+  .btn.wa{background:var(--wa)}
+  .btn.danger{background:var(--danger)}
+  .btn.sm{padding:8px; font-size:13px}
+
+  .flag{border-radius:11px; padding:12px 13px; font-size:13px; line-height:1.45; margin:10px 0}
+  .flag.warn{background:var(--warn-soft); border:1px solid #fcd34d; color:#78350f}
+  .flag.dang{background:var(--danger-soft); border:1px solid #fda29b; color:#7a271a}
+  .flag.ok{background:var(--brand-soft); border:1px solid #a7d9d0; color:#065f52}
+  .flag b{display:block; margin-bottom:3px}
+  .flag .acts{display:flex; gap:7px; margin-top:9px}
+  .flag .acts button{flex:1; padding:7px; border-radius:8px; border:1px solid rgba(0,0,0,.14); background:#fff; font:inherit; font-size:12.5px; font-weight:600; cursor:pointer; color:inherit}
+
+  .empty{text-align:center; padding:44px 22px; color:var(--ink-3)}
+  .empty .e{font-size:34px; margin-bottom:12px}
+  .empty b{display:block; color:var(--ink); font-size:15px; margin-bottom:5px}
+  .empty p{margin:0 0 16px; font-size:13.5px; line-height:1.5}
+
+  .board{display:flex; gap:9px; overflow-x:auto; padding-bottom:6px}
+  .col{min-width:132px; flex:none}
+  .col h4{margin:0 0 7px; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-3); display:flex; justify-content:space-between}
+  .deal{background:#fff; border:1px solid var(--line); border-radius:10px; padding:9px 10px; margin-bottom:7px; cursor:pointer; font-size:13px}
+  .deal b{display:block; font-size:13px; margin-bottom:2px}
+  .deal span{color:var(--brand); font-weight:650; font-size:12.5px}
+  .deal.rot{border-color:#fda29b; background:#fffbfa}
+  .deal.rot em{display:block; font-style:normal; color:var(--danger); font-size:11px; margin-top:3px}
+
+  .tl{position:relative; padding-left:20px; margin-top:6px}
+  .tl:before{content:''; position:absolute; left:5px; top:6px; bottom:6px; width:2px; background:var(--line)}
+  .ev{position:relative; padding:0 0 15px}
+  .ev:before{content:''; position:absolute; left:-19px; top:5px; width:10px; height:10px; border-radius:50%; background:#fff; border:2px solid var(--ink-3)}
+  .ev.wa:before{border-color:var(--wa)}
+  .ev.in:before{background:var(--wa); border-color:var(--wa)}
+  .ev b{display:block; font-size:13.5px; font-weight:600}
+  .ev p{margin:2px 0 0; font-size:13px; color:var(--ink-2)}
+  .ev time{font-size:11.5px; color:var(--ink-3)}
+
+  .chip{display:inline-block; padding:2px 8px; border-radius:99px; font-size:11px; font-weight:600; background:var(--bg); color:var(--ink-2)}
+  .chip.wa{background:#dcfce7; color:#14532d}
+  .chip.own{background:var(--brand-soft); color:var(--brand)}
+  .chip.rep{background:#eef2ff; color:#3730a3}
+  .chip.ro{background:#f4f5f7; color:var(--ink-3)}
+
+  .task{display:flex; gap:10px; align-items:flex-start; padding:10px 2px; border-bottom:1px solid var(--line)}
+  .task i{width:18px; height:18px; border:2px solid var(--ink-3); border-radius:5px; flex:none; margin-top:2px; cursor:pointer}
+  .task.late i{border-color:var(--danger)}
+  .task b{display:block; font-size:14px; font-weight:600}
+  .task span{font-size:12.5px; color:var(--ink-3)}
+  .task.late span{color:var(--danger); font-weight:600}
+
+  .set{display:flex; align-items:center; gap:11px; padding:13px 2px; border-bottom:1px solid var(--line); cursor:pointer; font-size:14.5px}
+  .set .ic{font-size:17px; width:24px; text-align:center}
+  .set .ar{margin-left:auto; color:var(--ink-3)}
+  .set small{display:block; color:var(--ink-3); font-size:12px; font-weight:400}
+
+  .cap{font-size:12.5px; color:var(--ink-3); line-height:1.5; margin-top:12px}
+  .kv{display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--line); font-size:13.5px}
+  .kv span{color:var(--ink-3)}
+
+  .why{background:#fff; border:1px solid var(--line); border-left:3px solid var(--brand); border-radius:0 12px 12px 0; padding:14px 16px; margin-top:20px}
+  .why h4{margin:0 0 6px; font-size:13px; color:var(--brand); text-transform:uppercase; letter-spacing:.05em}
+  .why p{margin:0; font-size:13.5px; color:var(--ink-2); line-height:1.55}
+  .why p+p{margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div>
+    <header>
+      <h1>OGGI Free CRM — clickable prototype</h1>
+      <p>Every screen in <code>SCREENMAP.md</code>, tappable. This is a drawing, not software:
+         nothing is saved and no data is real. It exists so the shape of the product can be
+         argued with before a line of it is built.</p>
+      <div class="meta">11 August 2026 · v1 scope · <b id="now">screen-login</b></div>
+    </header>
+
+    <div class="index" id="idx"></div>
+
+    <div class="note">
+      <h3>What to look at</h3>
+      <ul>
+        <li><b>Add contact</b> — the duplicate warning. It warns and offers to open the existing
+            record. It never blocks. Hard-blocking teaches users to leave the phone field empty.</li>
+        <li><b>Contact</b> — the WhatsApp window countdown. Meta rejects free-form messages once
+            the 24-hour window closes, so the composer has to change before you type, not after you send.</li>
+        <li><b>Gone quiet</b> — what replaces recurring tasks. It only fires when the relationship
+            actually went cold, and clears itself when you make contact.</li>
+        <li><b>Recycle bin</b> — reachable from Contacts, not buried in Settings. Undo you cannot
+            find is undo that does not exist.</li>
+        <li><b>Home, empty</b> — the first-ever screen. Most CRM trials die here.</li>
+      </ul>
+    </div>
+
+    <div class="why">
+      <h4>Why a prototype before code</h4>
+      <p>Of ten real failures in previous OGGI builds, one came from bad planning and eight from
+         nobody checking the live product. This prototype is not there to make planning longer —
+         it is there so that the thing being checked later is a thing that was agreed earlier.</p>
+      <p>Every screen here maps to a feature file in <code>features/</code> and a row in
+         <code>docs/FEATURE-MATRIX.csv</code>. If a screen exists here and nowhere in that matrix,
+         the completeness check fails the build.</p>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="phone"><div class="glass">
+      <div class="status"><span>9:41</span><span>OGGI CRM</span><span>100%</span></div>
+
+      <!-- LOGIN -->
+      <section class="screen on" id="screen-login">
+        <div class="body" style="display:flex;flex-direction:column;justify-content:center">
+          <div style="text-align:center;margin-bottom:26px">
+            <div style="width:56px;height:56px;border-radius:16px;background:var(--brand);color:#fff;display:grid;place-items:center;font-size:24px;font-weight:700;margin:0 auto 14px">O</div>
+            <h2 style="margin:0 0 5px;font-size:21px">OGGI Free CRM</h2>
+            <p style="margin:0;color:var(--ink-3);font-size:13.5px">Free. No card. No limit on contacts.</p>
+          </div>
+          <input class="fld" placeholder="Phone or email">
+          <button class="btn" data-go="screen-home">Continue</button>
+          <p class="cap" style="text-align:center">We send the code on WhatsApp, not SMS.<br>Lebanese SMS has been unreliable since 2025.</p>
+        </div>
+      </section>
+
+      <!-- HOME -->
+      <section class="screen" id="screen-home">
+        <div class="top"><h2>Today</h2><span class="chip own">Owner</span></div>
+        <div class="body">
+          <div class="stat d" data-go="screen-today"><div class="n">3</div><div class="t"><b>Due today</b>One is already late</div></div>
+          <div class="stat q" data-go="screen-quiet"><div class="n">7</div><div class="t"><b>Gone quiet</b>No contact in 30 days</div></div>
+          <div class="stat w" data-go="screen-contact"><div class="n">2</div><div class="t"><b>WhatsApp replies</b>Waiting on you</div></div>
+          <div class="lbl">Recent</div>
+          <div class="row" data-go="screen-contact"><div class="av">RH</div><div class="m"><b>Rami Haddad</b><span>Haddad Textiles · Bourj Hammoud</span></div><div class="r">2h</div></div>
+          <div class="row" data-go="screen-contact"><div class="av">MK</div><div class="m"><b>Maya Khoury</b><span>Khoury Boutique · Jounieh</span></div><div class="r">1d</div></div>
+          <div class="row" data-go="screen-contact"><div class="av">AS</div><div class="m"><b>Abou Samir</b><span>Samir Stores · Tripoli</span></div><div class="r">3d</div></div>
+        </div>
+        <nav class="tabs">
+          <button class="on" data-go="screen-home"><span class="ic">◎</span>Today</button>
+          <button data-go="screen-contacts"><span class="ic">☰</span>Contacts</button>
+          <button data-go="screen-pipeline"><span class="ic">▤</span>Pipeline</button>
+          <button data-go="screen-settings"><span class="ic">⚙</span>Settings</button>
+        </nav>
+      </section>
+
+      <!-- HOME EMPTY -->
+      <section class="screen" id="screen-home-empty">
+        <div class="top"><h2>Today</h2><span class="chip own">Owner</span></div>
+        <div class="body">
+          <div class="empty">
+            <div class="e">👋</div>
+            <b>Nothing here yet — that is normal</b>
+            <p>Bring your client list in and you will have a working CRM in about a minute.
+               Everything you add stays yours and exports whenever you want.</p>
+            <button class="btn" data-go="screen-import">Import from a file</button>
+            <button class="btn ghost" style="margin-top:8px" data-go="screen-contact-new">Add one by hand</button>
+          </div>
+          <p class="cap" style="text-align:center">A pipeline with sensible stages already exists.
+             You do not have to set anything up.</p>
+        </div>
+        <nav class="tabs">
+          <button class="on" data-go="screen-home-empty"><span class="ic">◎</span>Today</button>
+          <button data-go="screen-contacts"><span class="ic">☰</span>Contacts</button>
+          <button data-go="screen-pipeline"><span class="ic">▤</span>Pipeline</button>
+          <button data-go="screen-settings"><span class="ic">⚙</span>Settings</button>
+        </nav>
+      </section>
+
+      <!-- CONTACTS -->
+      <section class="screen" id="screen-contacts">
+        <div class="top"><h2>Contacts</h2><button class="btn sm" style="width:auto;padding:7px 12px" data-go="screen-contact-new">+ Add</button></div>
+        <div class="body">
+          <input class="search" placeholder="Search name or number…">
+          <div style="display:flex;gap:7px;margin:4px 0 8px">
+            <button class="btn ghost sm" data-go="screen-import">Import</button>
+            <button class="btn ghost sm">Export CSV</button>
+            <button class="btn ghost sm" data-go="screen-bin">Bin</button>
+          </div>
+          <div class="row" data-go="screen-contact"><div class="av">RH</div><div class="m"><b>Rami Haddad</b><span>03 421 887 · Haddad Textiles</span></div><span class="chip wa">WA</span></div>
+          <div class="row" data-go="screen-contact"><div class="av">MK</div><div class="m"><b>Maya Khoury</b><span>70 118 902 · Khoury Boutique</span></div><span class="chip wa">WA</span></div>
+          <div class="row" data-go="screen-contact"><div class="av">AS</div><div class="m"><b>Abou Samir</b><span>06 445 100 · Samir Stores</span></div></div>
+          <div class="row" data-go="screen-contact"><div class="av">NA</div><div class="m"><b>Nadia Aoun</b><span>71 903 224 · Aoun Fabrics</span></div><span class="chip wa">WA</span></div>
+          <div class="row" data-go="screen-contact"><div class="av">GT</div><div class="m"><b>Georges Tannous</b><span>03 776 019 · Tannous &amp; Sons</span></div></div>
+          <p class="cap">213 contacts. Export includes every one of them and every field, free,
+             always — including your WhatsApp history.</p>
+        </div>
+        <nav class="tabs">
+          <button data-go="screen-home"><span class="ic">◎</span>Today</button>
+          <button class="on" data-go="screen-contacts"><span class="ic">☰</span>Contacts</button>
+          <button data-go="screen-pipeline"><span class="ic">▤</span>Pipeline</button>
+          <button data-go="screen-settings"><span class="ic">⚙</span>Settings</button>
+        </nav>
+      </section>
+
+      <!-- ADD CONTACT + DUPLICATE WARNING -->
+      <section class="screen" id="screen-contact-new">
+        <div class="top"><button class="back" data-go="screen-contacts">‹</button><h2>Add contact</h2></div>
+        <div class="body">
+          <div class="lbl">Name</div><input class="fld" value="Rami H.">
+          <div class="lbl">Phone</div><input class="fld" value="+961 3 421 887">
+          <div class="flag warn">
+            <b>03 421 887 already belongs to Rami Haddad</b>
+            You typed it as +961 3 421 887 — same number.
+            <div class="acts">
+              <button data-go="screen-contact">Open Rami Haddad</button>
+              <button data-go="screen-contacts">Save anyway</button>
+            </div>
+          </div>
+          <div class="lbl">WhatsApp</div><input class="fld" placeholder="Same as phone">
+          <div class="lbl">Company</div><input class="fld" placeholder="Optional">
+          <button class="btn" data-go="screen-contacts">Save contact</button>
+          <p class="cap"><b>Save anyway always works.</b> Two people really can share one shop
+             landline. A CRM that refuses the save teaches you to leave the number blank, which is
+             worse than a duplicate.</p>
+        </div>
+      </section>
+
+      <!-- CONTACT -->
+      <section class="screen" id="screen-contact">
+        <div class="top"><button class="back" data-go="screen-contacts">‹</button><h2>Rami Haddad</h2></div>
+        <div class="body">
+          <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px">
+            <div class="av" style="width:48px;height:48px;font-size:16px">RH</div>
+            <div><b style="font-size:15.5px">Haddad Textiles</b>
+            <div style="font-size:13px;color:var(--ink-3)">03 421 887 · Bourj Hammoud</div></div>
+          </div>
+          <div class="flag ok">
+            <b>Open for 19 more hours</b>
+            Rami messaged you at 08:12, so you can write anything you like until 08:12 tomorrow, free.
+          </div>
+          <textarea class="fld" rows="2" placeholder="Write a message…"></textarea>
+          <button class="btn wa">Send on WhatsApp</button>
+          <div class="lbl">Timeline</div>
+          <div class="tl">
+            <div class="ev in"><b>Rami — WhatsApp</b><p>“Do you have the navy cotton in 200m?”</p><time>Today 08:12</time></div>
+            <div class="ev wa"><b>You — WhatsApp</b><p>“Checking stock now, back to you in an hour.”</p><time>Today 08:20</time></div>
+            <div class="ev"><b>Note</b><p>Wants the same terms as last quarter. Pays on time, always.</p><time>4 Aug</time></div>
+            <div class="ev"><b>Deal moved to Quoted</b><p>$4,200 — spring order</p><time>28 Jul</time></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CONTACT, WINDOW CLOSED -->
+      <section class="screen" id="screen-contact-closed">
+        <div class="top"><button class="back" data-go="screen-contacts">‹</button><h2>Abou Samir</h2></div>
+        <div class="body">
+          <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px">
+            <div class="av" style="width:48px;height:48px;font-size:16px">AS</div>
+            <div><b style="font-size:15.5px">Samir Stores</b>
+            <div style="font-size:13px;color:var(--ink-3)">06 445 100 · Tripoli</div></div>
+          </div>
+          <div class="flag warn">
+            <b>The 24-hour window has closed</b>
+            Abou Samir last wrote 3 days ago. WhatsApp will not deliver a free-typed message now —
+            you can send one of your approved templates instead.
+          </div>
+          <div class="lbl">Choose a template</div>
+          <div class="row"><div class="m"><b>Order ready for pickup</b><span>Utility · $0.0105</span></div><span class="chip">Send</span></div>
+          <div class="row"><div class="m"><b>Monthly restock check-in</b><span>Utility · $0.0105</span></div><span class="chip">Send</span></div>
+          <div class="row"><div class="m"><b>New season catalogue</b><span>Marketing · $0.0392</span></div><span class="chip">Send</span></div>
+          <p class="cap">The cost is shown before you send, not on a bill at the end of the month.
+             Replies inside the window are free.</p>
+        </div>
+      </section>
+
+      <!-- IMPORT -->
+      <section class="screen" id="screen-import">
+        <div class="top"><button class="back" data-go="screen-contacts">‹</button><h2>Import contacts</h2></div>
+        <div class="body">
+          <div class="flag ok"><b>412 rows read from clients.csv</b>Nothing has been saved yet.</div>
+          <div class="lbl">Match the columns</div>
+          <div class="kv"><span>Name</span><b>Column A</b></div>
+          <div class="kv"><span>Phone</span><b>Column C</b></div>
+          <div class="kv"><span>Company</span><b>Column B</b></div>
+          <div class="lbl">Already in your list</div>
+          <div class="flag warn"><b>38 rows match someone you already have</b>
+            Matched on the phone number, however it was written.
+            <div class="acts"><button>Skip them</button><button>Update mine</button></div>
+          </div>
+          <button class="btn" data-go="screen-contacts">Import 374 contacts</button>
+          <p class="cap">You can undo the whole import as one action afterwards — only the rows it
+             creates, not the ones it updates. It will say which.</p>
+        </div>
+      </section>
+
+      <!-- PIPELINE -->
+      <section class="screen" id="screen-pipeline">
+        <div class="top"><h2>Pipeline</h2><span class="chip">$21,400</span></div>
+        <div class="body">
+          <div class="board">
+            <div class="col"><h4><span>New</span><span>3</span></h4>
+              <div class="deal" data-go="screen-deal"><b>Aoun Fabrics</b><span>$2,800</span></div>
+              <div class="deal"><b>Tannous &amp; Sons</b><span>$1,150</span></div>
+              <div class="deal rot"><b>Zgheib Trading</b><span>$3,400</span><em>Quiet 34 days</em></div>
+            </div>
+            <div class="col"><h4><span>Quoted</span><span>2</span></h4>
+              <div class="deal" data-go="screen-deal"><b>Haddad Textiles</b><span>$4,200</span></div>
+              <div class="deal"><b>Khoury Boutique</b><span>$1,900</span></div>
+            </div>
+            <div class="col"><h4><span>Won</span><span>2</span></h4>
+              <div class="deal"><b>Samir Stores</b><span>$5,600</span></div>
+              <div class="deal"><b>Naji Import</b><span>$2,350</span></div>
+            </div>
+          </div>
+          <p class="cap">Drag a deal between stages. It stays there after you close the app and it
+             is in the same place on your other phone — that is checked before this feature is
+             ever marked done.</p>
+        </div>
+        <nav class="tabs">
+          <button data-go="screen-home"><span class="ic">◎</span>Today</button>
+          <button data-go="screen-contacts"><span class="ic">☰</span>Contacts</button>
+          <button class="on" data-go="screen-pipeline"><span class="ic">▤</span>Pipeline</button>
+          <button data-go="screen-settings"><span class="ic">⚙</span>Settings</button>
+        </nav>
+      </section>
+
+      <!-- DEAL -->
+      <section class="screen" id="screen-deal">
+        <div class="top"><button class="back" data-go="screen-pipeline">‹</button><h2>Spring order</h2></div>
+        <div class="body">
+          <div class="kv"><span>Contact</span><b>Rami Haddad</b></div>
+          <div class="kv"><span>Value</span><b>$4,200</b></div>
+          <div class="kv"><span>Stage</span><b>Quoted</b></div>
+          <div class="kv"><span>Last activity</span><b>Today, 08:20</b></div>
+          <div class="lbl">Move to</div>
+          <div style="display:flex;gap:7px"><button class="btn ghost sm">New</button><button class="btn sm">Quoted</button><button class="btn ghost sm">Won</button></div>
+          <button class="btn ghost" style="margin-top:14px" data-go="screen-contact">Open Rami Haddad</button>
+        </div>
+      </section>
+
+      <!-- TODAY -->
+      <section class="screen" id="screen-today">
+        <div class="top"><button class="back" data-go="screen-home">‹</button><h2>Due today</h2></div>
+        <div class="body">
+          <div class="task late"><i></i><div><b>Call Abou Samir about the reorder</b><span>Overdue — was due 9 Aug</span></div></div>
+          <div class="task"><i></i><div><b>Send Rami the navy cotton stock count</b><span>Today · Haddad Textiles</span></div></div>
+          <div class="task"><i></i><div><b>Confirm Maya's delivery slot</b><span>Today · Khoury Boutique</span></div></div>
+          <p class="cap">Late tasks are shown, never hidden. Ticking one keeps it ticked after a
+             reload and on your other phone.</p>
+        </div>
+      </section>
+
+      <!-- GONE QUIET -->
+      <section class="screen" id="screen-quiet">
+        <div class="top"><button class="back" data-go="screen-home">‹</button><h2>Gone quiet</h2></div>
+        <div class="body">
+          <p style="margin:0 0 10px;font-size:13.5px;color:var(--ink-2)">
+            No note, message, call or order in <b>30 days</b>. Oldest first.</p>
+          <div class="row" data-go="screen-contact"><div class="av">ZT</div><div class="m"><b>Zgheib Trading</b><span>Last contact 6 Jun</span></div><div class="r">66d</div></div>
+          <div class="row" data-go="screen-contact"><div class="av">NI</div><div class="m"><b>Naji Import</b><span>Last contact 2 Jul</span></div><div class="r">40d</div></div>
+          <div class="row" data-go="screen-contact"><div class="av">FB</div><div class="m"><b>Fares Bou Diab</b><span>Last contact 8 Jul</span></div><div class="r">34d</div></div>
+          <div class="row" data-go="screen-contact"><div class="av">SM</div><div class="m"><b>Sarkis Markets</b><span>Check in every 14 days</span></div><div class="r">17d</div></div>
+          <p class="cap"><b>This is instead of recurring reminders.</b> A repeating task fires even
+             when the customer ordered yesterday. Four dismissals later you stop reading your task
+             list. This list only shows people who actually went quiet, and they drop off it the
+             moment you make contact.</p>
+        </div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section class="screen" id="screen-settings">
+        <div class="top"><h2>Settings</h2></div>
+        <div class="body">
+          <div class="set" data-go="screen-team"><span class="ic">👥</span><div>Team<small>3 people</small></div><span class="ar">›</span></div>
+          <div class="set" data-go="screen-whatsapp"><span class="ic">💬</span><div>WhatsApp<small>Not connected</small></div><span class="ar">›</span></div>
+          <div class="set" data-go="screen-content"><span class="ic">✎</span><div>Text and labels<small>2 waiting for approval</small></div><span class="ar">›</span></div>
+          <div class="set" data-go="screen-bin"><span class="ic">🗑</span><div>Recycle bin<small>47 items, 30 days</small></div><span class="ar">›</span></div>
+          <div class="set"><span class="ic">⤓</span><div>Export everything<small>CSV, free, always</small></div><span class="ar">›</span></div>
+          <div class="set"><span class="ic">◷</span><div>Gone quiet after<small>30 days</small></div><span class="ar">›</span></div>
+        </div>
+        <nav class="tabs">
+          <button data-go="screen-home"><span class="ic">◎</span>Today</button>
+          <button data-go="screen-contacts"><span class="ic">☰</span>Contacts</button>
+          <button data-go="screen-pipeline"><span class="ic">▤</span>Pipeline</button>
+          <button class="on" data-go="screen-settings"><span class="ic">⚙</span>Settings</button>
+        </nav>
+      </section>
+
+      <!-- TEAM -->
+      <section class="screen" id="screen-team">
+        <div class="top"><button class="back" data-go="screen-settings">‹</button><h2>Team</h2></div>
+        <div class="body">
+          <div class="row"><div class="av">HH</div><div class="m"><b>Hadi Hamza</b><span>hadi@oggi…</span></div><span class="chip own">Owner</span></div>
+          <div class="row"><div class="av">JK</div><div class="m"><b>Joe Karam</b><span>Sees only his own contacts</span></div><span class="chip rep">Rep</span></div>
+          <div class="row"><div class="av">LA</div><div class="m"><b>Lara A.</b><span>Reads, cannot change anything</span></div><span class="chip ro">View</span></div>
+          <button class="btn" style="margin-top:12px">Invite someone</button>
+          <p class="cap">A Rep who types the settings address straight into the browser is refused
+             and told why — the restriction is in the database, not in a hidden button.</p>
+        </div>
+      </section>
+
+      <!-- CONTENT -->
+      <section class="screen" id="screen-content">
+        <div class="top"><button class="back" data-go="screen-settings">‹</button><h2>Text and labels</h2></div>
+        <div class="body">
+          <div class="flag warn"><b>2 changes waiting for approval</b>You wrote them, so you cannot approve them.</div>
+          <div class="lbl">Waiting</div>
+          <div class="row"><div class="m"><b>contacts.empty_message</b><span>“Nothing here yet — that is normal”</span></div><span class="chip">QC</span></div>
+          <div class="row"><div class="m"><b>whatsapp.button_label</b><span>“Send on WhatsApp”</span></div><span class="chip">QC</span></div>
+          <div class="lbl">Live</div>
+          <div class="row"><div class="m"><b>quiet.heading</b><span>“Gone quiet”</span></div><span class="chip">Live</span></div>
+          <p class="cap">Every word a customer sees is editable here without a developer and without
+             a deploy. Whoever writes it cannot be the one who publishes it.</p>
+        </div>
+      </section>
+
+      <!-- BIN -->
+      <section class="screen" id="screen-bin">
+        <div class="top"><button class="back" data-go="screen-contacts">‹</button><h2>Recycle bin</h2></div>
+        <div class="body">
+          <div class="flag dang"><b>47 contacts deleted — 2 minutes ago</b>
+            You can put the whole thing back as one action.
+            <div class="acts"><button data-go="screen-contacts">Undo all 47</button><button>Export first</button></div>
+          </div>
+          <div class="lbl">Recent operations</div>
+          <div class="row"><div class="m"><b>Deleted 47 contacts</b><span>Today 14:32 · expires 10 Sep</span></div><span class="chip">Undo</span></div>
+          <div class="row"><div class="m"><b>Imported 374 contacts</b><span>Today 11:04 · expires 10 Sep</span></div><span class="chip">Undo</span></div>
+          <div class="row"><div class="m"><b>Deleted 1 contact</b><span>9 Aug · expires 8 Sep</span></div><span class="chip">Undo</span></div>
+          <p class="cap">Undoing an import removes the rows it created and leaves the ones it
+             updated alone. Deals, tasks and timeline come back with the contact, not orphaned.</p>
+        </div>
+      </section>
+
+      <!-- WHATSAPP -->
+      <section class="screen" id="screen-whatsapp">
+        <div class="top"><button class="back" data-go="screen-settings">‹</button><h2>WhatsApp</h2></div>
+        <div class="body">
+          <div class="empty" style="padding-top:20px">
+            <div class="e">💬</div>
+            <b>Connect your own WhatsApp Business</b>
+            <p>Keep the number you already use. Your last six months of chats come across, and
+               your customers see your name, not ours.</p>
+            <button class="btn">Connect my WhatsApp</button>
+          </div>
+          <div class="lbl">What this means</div>
+          <div class="kv"><span>Whose account</span><b>Yours</b></div>
+          <div class="kv"><span>Who Meta bills</span><b>You, directly</b></div>
+          <div class="kv"><span>Replies in 24h</span><b>Free</b></div>
+          <div class="kv"><span>Templates after</span><b>≈ $0.01 each</b></div>
+          <div class="kv"><span>If you leave</span><b>Number and history stay yours</b></div>
+          <p class="cap">We never send from a shared OGGI number on your behalf, and we never use an
+             unofficial WhatsApp tool — that is how business numbers get banned.</p>
+        </div>
+      </section>
+
+    </div></div>
+  </div>
+</div>
+
+<script>
+  var SCREENS = [
+    ['screen-login','Sign in'],
+    ['screen-home-empty','Home — first ever'],
+    ['screen-home','Home'],
+    ['screen-contacts','Contacts'],
+    ['screen-contact-new','Add — duplicate warning'],
+    ['screen-contact','Contact — window open'],
+    ['screen-contact-closed','Contact — window closed'],
+    ['screen-import','Import'],
+    ['screen-pipeline','Pipeline'],
+    ['screen-deal','Deal'],
+    ['screen-today','Due today'],
+    ['screen-quiet','Gone quiet'],
+    ['screen-settings','Settings'],
+    ['screen-team','Team'],
+    ['screen-content','Text and labels'],
+    ['screen-bin','Recycle bin'],
+    ['screen-whatsapp','WhatsApp']
+  ];
+
+  var idx = document.getElementById('idx');
+  SCREENS.forEach(function(s){
+    var b = document.createElement('button');
+    b.textContent = s[1];
+    b.dataset.go = s[0];
+    idx.appendChild(b);
+  });
+
+  function show(id){
+    var el = document.getElementById(id);
+    if(!el) return;
+    document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('on'); });
+    el.classList.add('on');
+    var b = el.querySelector('.body'); if(b) b.scrollTop = 0;
+    document.querySelectorAll('#idx button').forEach(function(x){
+      x.classList.toggle('on', x.dataset.go === id);
+    });
+    document.getElementById('now').textContent = id;
+  }
+
+  document.addEventListener('click', function(e){
+    var t = e.target.closest('[data-go]');
+    if(!t) return;
+    show(t.dataset.go);
+  });
+
+  show('screen-login');
+</script>
+</body>
+</html>

@@ -1,31 +1,40 @@
 id: FEAT-0007
-title: Send and receive WhatsApp from the contact record
+title: Message a contact on WhatsApp and log it
 status: planned
 role: pro
 path: /contacts/:id
 
+# v1 of the WhatsApp wedge. Deliberately a deep link, not the API.
+# Ships in a day, costs nothing, needs no Meta approval, and makes the contact
+# record useful immediately. It does NOT capture inbound replies — that is
+# FEAT-0014, which needs Meta Embedded Signup and a resolved billing question.
+# See docs/PRD.md 11.7 for why this order.
+
 steps:
   - Open a contact
-  - Type a message in the WhatsApp box
-  - Send
-  - Reply from the other phone
-expect: Both your message and their reply appear on the timeline, on both devices
+  - Tap WhatsApp
+  - WhatsApp opens with the message already filled in
+  - Send it, then come back to the CRM
+  - Tap "Log this conversation" and type what was said
+expect: The timeline shows that a WhatsApp message was sent, with the date and your note
 
 persists:
   - activities
-  - messages
 
 notifies:
-  - the pro, when a customer replies
+  # nobody needs telling
 
 admin_editable:
-  - whatsapp.send_button
-  - whatsapp.failed_message
+  - whatsapp.button_label
+  - whatsapp.prefilled_message
+  - whatsapp.log_prompt
 
 unhappy_paths:
-  - Send with no message typed -> nothing sent, told why
-  - Number is not on WhatsApp -> a clear message, not silence
-  - Sent while offline -> queued and clearly marked, never lost
+  - Contact has no WhatsApp number -> the button explains, it is not dead
+  - Number stored as 03 123 456 -> the link still opens the right chat
+  - WhatsApp is not installed -> falls back to web.whatsapp.com, never a broken link
+  - Came back without logging -> the CRM asks once, then stops nagging
+  - Tapped Log twice -> one entry, not two
 
 verified_by: ""
 last_proven_at: ""

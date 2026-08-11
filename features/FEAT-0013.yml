@@ -1,0 +1,37 @@
+id: FEAT-0013
+title: See which contacts have gone quiet
+status: planned
+role: pro
+path: /quiet
+
+# This replaces recurring tasks, deliberately. A recurring task fires whether or
+# not anything happened; if the stockist reordered yesterday it still fires, and
+# four dismissals later nobody trusts the task list. This fires only when the
+# relationship actually went cold, and clears itself when contact resumes.
+
+steps:
+  - Open Gone quiet
+  - Look at the list
+  - Message someone on it, then come back
+expect: Contacts with no activity for 30 days, oldest first. The one you just messaged has left the list.
+
+persists:
+  - contacts
+
+notifies:
+  # in-app only — computed on read, no message is sent
+
+admin_editable:
+  - quiet.heading
+  - quiet.empty_message
+  - quiet.threshold_label
+
+unhappy_paths:
+  - Brand new account -> explains what this list will do, not a blank screen
+  - Nobody is quiet -> says you are on top of it
+  - A note added an hour ago -> that contact is not on the list
+  - Contact set to check in every 7 days -> appears after 7, not 30
+  - 500 quiet contacts -> still scrolls smoothly on a phone
+
+verified_by: ""
+last_proven_at: ""
